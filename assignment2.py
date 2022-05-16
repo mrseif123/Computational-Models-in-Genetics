@@ -2,9 +2,8 @@
 # Home assignment #2, questions 1, 2 & 3.
 # By: Seaf Aliyan, mrseif123.
 
-## Question 1, NK Models:-
+# Question 1, NK Models:-
 import random
-import time
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -21,16 +20,16 @@ def process_number(n_as_lst):
     return s
 
 
-def generateAllBinaryStrings(n, arr, i, bin_lst):
-    if i == n:
-        bin_lst.append(process_number(arr[0:n]))
+def generateAllBinaryStrings(num, arr, i, bin_lst):
+    if i == num:
+        bin_lst.append(process_number(arr[0:num]))
         return bin_lst
 
     arr[i] = 0
-    generateAllBinaryStrings(n, arr, i + 1, bin_lst)
+    generateAllBinaryStrings(num, arr, i + 1, bin_lst)
 
     arr[i] = 1
-    generateAllBinaryStrings(n, arr, i + 1, bin_lst)
+    generateAllBinaryStrings(num, arr, i + 1, bin_lst)
 
 
 def isPowerOfTwo(x):
@@ -161,10 +160,61 @@ def get_local_maximums_number(n_m, f_m):
     return counter
 
 
+def plot_non_decrasing_trajectories(b_lst, n_m, f_m, k, n):
+    t_l = get_trajectory_lengths(b_lst, f_m, n_m)
+    fig = plt.figure(figsize=(10, 5))
+    plt.bar(t_l.keys(), t_l.values())
+    plt.xlabel("starting point")
+    plt.ylabel("path length")
+    plt.title("Distrubution of longest non-decreasing\n fitness trajectories with N={} & K={}".format(N,K))
+    plt.show()
+
+
+def get_trajectory_lengths(b_lst, f_m, n_m):
+    trajectory_lenght_map = {}
+    absloute_max = max([val for val in f_m.values()])
+    for point in b_lst:
+        trajectory_lenght_map[point] = 0
+        current_max = point
+        current_max_val = f_m[current_max]
+        while True:
+            neighbours_fitnesses = [f_m[current_max]]
+            for neighbour in n_m[current_max]:
+                if f_m[neighbour] > current_max_val:
+                    current_max_val = f_m[neighbour]
+                    current_max = neighbour
+                    trajectory_lenght_map[point] += 1
+            if current_max_val != absloute_max:
+                trajectory_lenght_map[point] += 1
+            else:
+                break
+    return trajectory_lenght_map
+
+
+def autocorrelation_flow():
+    start_point = random.choice(bin_lst)
+    trajectory = get_trajectory_of_length(N, neighbours_map, start_point)
+    trajectory_as_fitness = np.array(calc_fitness(trajectory, fitness_map))
+    auto_corr = autocorr(trajectory_as_fitness)
+    fig = tsaplots.plot_acf(auto_corr, lags=N)
+    plt.title("Autocorrelation with " + str(N) + " lags")
+    plt.ylabel("autocorrelation")
+    plt.show()
+    print(auto_corr)
+
+
+def local_maximums_flow():
+    num_of_local_maximums = get_local_maximums_number(neighbours_map, fitness_map)
+    print(num_of_local_maximums)
+
+
+def longest_trajectories_flow():
+    plot_non_decrasing_trajectories(bin_lst, neighbours_map, fitness_map, K, N)
+
+
 if __name__ == '__main__':
     # Question 1:
-    for n, k in [(7, 2), (7, 2), (7, 5)]:
-        # for n, k in [(14, 0), (14, 4), (14, 10)]:
+    for n, k in [(14, 0), (14, 4), (14, 10)]:
         # Setting up environment:-
         N = n
         K = k
@@ -175,22 +225,14 @@ if __name__ == '__main__':
         generateAllBinaryStrings(N, helper_list, 0, bin_lst)
         neighbours_map = get_neighbours_map(bin_lst)
         fitness_map = get_local_fitness_lst(N, K, bin_lst)
-        plot_fitness(fitness_map, N, neighbours_map)
+        plot_fitness(fitness_map, N, neighbours_map) # TODO (1) Check graphs -too crowded for required N=14-
 
         # Part i:-
-        start_point = random.choice(bin_lst)
-        trajectory = get_trajectory_of_length(N, neighbours_map, start_point)
-        trajectory_as_fitness = np.array(calc_fitness(trajectory, fitness_map))
-        auto_corr = autocorr(trajectory_as_fitness)
-        fig = tsaplots.plot_acf(auto_corr, lags=N)
-        plt.title("Autocorrelation with " + str(N) + " lags")
-        plt.ylabel("autocorrelation")
-        plt.show()
-        print(auto_corr)
+        autocorrelation_flow() # TODO (1) Answer questions.
 
         # Part ii:-
-        num_of_local_maximums = get_local_maximums_number(neighbours_map, fitness_map)
-        print(num_of_local_maximums)
+        local_maximums_flow()
 
         # Part iii:-
+        longest_trajectories_flow() # TODO (1) fix infinite loop (2) Answer questions.
         break
