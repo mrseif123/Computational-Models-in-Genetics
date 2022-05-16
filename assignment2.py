@@ -1,6 +1,6 @@
 # Computational Models in Genetics and Living Systems
 # Home assignment #2, questions 1, 2 & 3.
-# By: Seaf Aliyan, mrseif123, 211367164.
+# By: Seaf Aliyan, mrseif123.
 
 ## Question 1, NK Models:-
 def generate_binary_language_helper(N, part, lst):

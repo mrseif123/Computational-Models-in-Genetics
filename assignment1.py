@@ -1,6 +1,6 @@
 # Computational Models in Genetics and Living Systems
 # Home assignment #1, exercises 1, 2 & 3.
-# By: Seaf Aliyan, mrseif123, 211367164.
+# By: Seaf Aliyan, mrseif123.
 import math
 import random
 from time import sleep
