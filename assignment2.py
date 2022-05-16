@@ -7,9 +7,8 @@ import random
 
 from matplotlib import pyplot as plt
 
-MARKERS_SHAPES = ["v", "^", "8", "s", "p", "*", "h",
-                  "+", "X", "d", "D", "<", ">", "1",
-                  "2", "3", "4", "."]
+MARKERS_SHAPES = [".", "v", "+", "*",  "^", "8", "s", "p",  "h",
+                   "X", "d", "D", "<", ">", "1", "2", "3", "4"]
 
 
 def process_number(n_as_lst):
@@ -99,45 +98,28 @@ def get_local_fitness_lst(N, K, bin_lst):
     return fitness_map
 
 
-def update_map(n_m):
-    seen_points = set()
-    new_map = {}
-    for k in n_m.keys():
-        if k not in seen_points:
-            seen_points.add(k)
-            for v in n_m[k]:
-                seen_points.add(v)
-            new_map[k] = n_m[k]
-    n_m = new_map
-
-
 def create_shapes_map(n_m):
     shapes_map = {}
-    seen_points = set()
-    counter = 0
     for k in n_m.keys():
-        shapes_map[k] = MARKERS_SHAPES[counter]
-        seen_points.add(k)
-        for v in n_m[k]:
-            if v not in seen_points:
-                counter += 1
-                seen_points.add(v)
-                shapes_map[v] = MARKERS_SHAPES[counter]
-            if v in seen_points:
-                counter-=1
+        shapes_map[k] = MARKERS_SHAPES[k.count('1')]
     return shapes_map
 
 
-def plot_fitness(fitness_map, N, neighbours_map):
-    update_map(neighbours_map)
-    # shapes_map = create_shapes_map(neighbours_map)
+def plot_fitness(fitness_map, N, neighbours_mapx):
+    shapes_map = create_shapes_map(neighbours_map)
     keys = fitness_map.keys()
     vals = [fitness_map[i] for i in keys]
-    plt.scatter(keys, vals)
-    plt.plot(keys, vals)
+
+    key_lst = list(keys)
+    for i in range(len(key_lst)):
+        plt.scatter(key_lst[i], vals[i])
+    for k in neighbours_mapx.keys():
+        my_vals = [fitness_map[v] for v in neighbours_mapx[k]]
+        plt.plot(neighbours_mapx[k], my_vals, marker=shapes_map[key_lst[i]])
     plt.xlabel("")
     plt.ylabel("fitness")
     plt.title("Fitness landscape\n with N=" + str(N) + ", K=" + str(K))
+    plt.xticks([])
     plt.show()
     pass
 
@@ -145,8 +127,8 @@ def plot_fitness(fitness_map, N, neighbours_map):
 if __name__ == '__main__':
     # Question 1:
     # Setting up environment:-
-    N = 5
-    K = 4
+    N = 14
+    K = 0
     helper_list = [None] * N
     bin_lst = []
     generateAllBinaryStrings(N, helper_list, 0, bin_lst)
