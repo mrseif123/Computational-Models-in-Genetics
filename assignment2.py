@@ -4,11 +4,14 @@
 
 ## Question 1, NK Models:-
 import random
+import time
 
+import numpy as np
 from matplotlib import pyplot as plt
+from statsmodels.graphics import tsaplots
 
-MARKERS_SHAPES = [".", "v", "+", "*",  "^", "8", "s", "p",  "h",
-                   "X", "d", "D", "<", ">", "1", "2", "3", "4"]
+MARKERS_SHAPES = [".", "v", "+", "*", "^", "8", "s", "p", "h",
+                  "X", "d", "D", "<", ">", "1", "2", "3", "4"]
 
 
 def process_number(n_as_lst):
@@ -124,14 +127,70 @@ def plot_fitness(fitness_map, N, neighbours_mapx):
     pass
 
 
+def get_trajectory_of_length(n, n_m, strt_point):
+    ln = pow(2, n)
+    vec = [strt_point]
+    curr = strt_point
+    for i in range(ln - 1):
+        random_neighbours = n_m[curr]
+        chosen = random.choice(random_neighbours)
+        vec.append(chosen)
+    return vec
+
+
+def calc_fitness(lst, f_map):
+    vec = [f_map[x] for x in lst]
+    return vec
+
+
+def autocorr(x):
+    result = np.correlate(x, x, mode='full')
+    return result[int(len(result) / 2):]
+
+
+def get_local_maximums_number(n_m, f_m):
+    counter = 0
+    for k in n_m.keys():
+        flag = True
+        for neighbour in n_m[k]:
+            if f_m[k] < f_m[neighbour]:
+                flag = False
+                break
+        if flag:
+            counter += 1
+    return counter
+
+
 if __name__ == '__main__':
     # Question 1:
-    # Setting up environment:-
-    N = 14
-    K = 0
-    helper_list = [None] * N
-    bin_lst = []
-    generateAllBinaryStrings(N, helper_list, 0, bin_lst)
-    neighbours_map = get_neighbours_map(bin_lst)
-    fitness_map = get_local_fitness_lst(N, K, bin_lst)
-    plot_fitness(fitness_map, N, neighbours_map)
+    for n, k in [(7, 2), (7, 2), (7, 5)]:
+        # for n, k in [(14, 0), (14, 4), (14, 10)]:
+        # Setting up environment:-
+        N = n
+        K = k
+        N = 3
+        K = 2
+        helper_list = [None] * N
+        bin_lst = []
+        generateAllBinaryStrings(N, helper_list, 0, bin_lst)
+        neighbours_map = get_neighbours_map(bin_lst)
+        fitness_map = get_local_fitness_lst(N, K, bin_lst)
+        plot_fitness(fitness_map, N, neighbours_map)
+
+        # Part i:-
+        start_point = random.choice(bin_lst)
+        trajectory = get_trajectory_of_length(N, neighbours_map, start_point)
+        trajectory_as_fitness = np.array(calc_fitness(trajectory, fitness_map))
+        auto_corr = autocorr(trajectory_as_fitness)
+        fig = tsaplots.plot_acf(auto_corr, lags=N)
+        plt.title("Autocorrelation with " + str(N) + " lags")
+        plt.ylabel("autocorrelation")
+        plt.show()
+        print(auto_corr)
+
+        # Part ii:-
+        num_of_local_maximums = get_local_maximums_number(neighbours_map, fitness_map)
+        print(num_of_local_maximums)
+
+        # Part iii:-
+        break
