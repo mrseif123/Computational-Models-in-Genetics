@@ -173,6 +173,7 @@ def plot_non_decrasing_trajectories(b_lst, n_m, f_m, k, n):
 def get_trajectory_lengths(b_lst, f_m, n_m):
     trajectory_lenght_map = {}
     absloute_max = max([val for val in f_m.values()])
+    neighbours_visited = 0
     for point in b_lst:
         trajectory_lenght_map[point] = 0
         current_max = point
@@ -181,13 +182,17 @@ def get_trajectory_lengths(b_lst, f_m, n_m):
             neighbours_fitnesses = [f_m[current_max]]
             for neighbour in n_m[current_max]:
                 if f_m[neighbour] > current_max_val:
+                    neighbours_visited = 0
                     current_max_val = f_m[neighbour]
                     current_max = neighbour
                     trajectory_lenght_map[point] += 1
             if current_max_val != absloute_max:
                 trajectory_lenght_map[point] += 1
+            if neighbours_visited >= N:
+                break
             else:
                 break
+            neighbours_visited+=1
     return trajectory_lenght_map
 
 
@@ -236,3 +241,5 @@ if __name__ == '__main__':
         # Part iii:-
         longest_trajectories_flow() # TODO (1) fix infinite loop (2) Answer questions.
         break
+
+    # Question 2:
