@@ -173,7 +173,7 @@ def get_local_maximums_number(n_m, f_m):
     return counter
 
 
-def plot_non_decrasing_trajectories(b_lst, n_m, f_m, k, n, Q1):
+def plot_non_decrasing_trajectories(b_lst, n_m, f_m, k, n):
     t_l = get_trajectory_lengths(b_lst, f_m, n_m)
     fig = plt.figure(figsize=(10, 5))
     # plt.hist(x=t_l.values(), bins=len(t_l.values()))
@@ -185,11 +185,7 @@ def plot_non_decrasing_trajectories(b_lst, n_m, f_m, k, n, Q1):
     plt.title(
         "Distrubution of longest non-decreasing\n fitness trajectories with N={} & K={}"
         " & number of paths={}".format(N, K, len(t_l.keys())))
-    if Q1:
-        TRAJECTORIES_DISTRIBUTION_Q1 = plt
-    else:
-        TRAJECTORIES_DISTRIBUTION_Q2 = plt
-    # plt.show()
+    plt.show()
 
 
 def get_trajectory_lengths(b_lst, f_m, n_m):
@@ -249,8 +245,8 @@ def local_maximums_flow(Q1):
         NUM_OF_MAXIMAS_Q2 = get_local_maximums_number(neighbours_map, fitness_map)
 
 
-def longest_trajectories_flow(Q1):
-    plot_non_decrasing_trajectories(bin_lst, neighbours_map, fitness_map, K, N, Q1)
+def longest_trajectories_flow():
+    plot_non_decrasing_trajectories(bin_lst, neighbours_map, fitness_map, K, N)
 
 
 if __name__ == '__main__':
@@ -271,12 +267,16 @@ if __name__ == '__main__':
 
         # Part i:-
         autocorrelation_flow()  # TODO (1) Answer questions.
+        print(AUTOCORRELATION_Q1)
 
         # Part ii:-
         local_maximums_flow(Q1=True)
+        print(NUM_OF_MAXIMAS_Q1)
 
         # Part iii:-
         longest_trajectories_flow(Q1=True)  # TODO (1) fix infinite loop (2) Answer questions.
+        TRAJECTORIES_DISTRIBUTION_Q1.show()
+
         break
 
     # Question 2: # TODO (2.i) Compare them to NK landscape.
@@ -290,9 +290,12 @@ if __name__ == '__main__':
 
     # Part i:-
     correlation_flow()
+    print(CORRELATION_Q2)
 
     # Part ii:-
     local_maximums_flow(Q1=False)
+    print(NUM_OF_MAXIMAS_Q2)
 
     # Part iii:-
     longest_trajectories_flow(Q1=False)
+    TRAJECTORIES_DISTRIBUTION_Q2.show()
