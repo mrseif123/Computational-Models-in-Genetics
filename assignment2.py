@@ -6,6 +6,7 @@
 import random
 import numpy as np
 from matplotlib import pyplot as plt
+from statsmodels.graphics import tsaplots
 
 MARKERS_SHAPES = [".", "v", "+", "*", "^", "8", "s", "p", "h",
                   "X", "d", "D", "<", ">", "1", "2", "3", "4"]
@@ -217,28 +218,28 @@ def get_trajectory_lengths(b_lst, f_m, n_m):
     return trajectory_length_map, MAX_PATH
 
 
-def autocorrelation_flow():
-    global AUTOCORRELATION_Q1
+def relation_flow(Q1):
+    global AUTOCORRELATION_Q1, CORRELATION_Q2
     start_point = random.choice(bin_lst)
     trajectory = get_trajectory_of_length(N, neighbours_map, start_point)
     trajectory_as_fitness = np.array(calc_fitness(trajectory, fitness_map))
-    auto_corr = autocorr(trajectory_as_fitness)
-    plt.title("Autocorrelation with " + str(N) + " lags")
-    plt.ylabel("autocorrelation")
-    plt.show()
-    AUTOCORRELATION_Q1 = auto_corr
 
+    if Q1:
+        relation = autocorr(trajectory_as_fitness)
 
-def correlation_flow():
-    global CORRELATION_Q2
-    start_point = random.choice(bin_lst)
-    trajectory = get_trajectory_of_length(N, neighbours_map, start_point)
-    trajectory_as_fitness = np.array(calc_fitness(trajectory, fitness_map))
-    corr_x = corr(trajectory_as_fitness)
-    plt.title("Correlation with " + str(N) + " lags")
-    plt.ylabel("correlation")
+    else:
+        relation = corr(trajectory_as_fitness)
+
+    tsaplots.plot_acf(relation, lags=N)
+    if Q1:
+        AUTOCORRELATION_Q1 = relation
+        plt.title("Autocorrelation with " + str(N) + " lags")
+        plt.ylabel("autocorrelation")
+    else:
+        CORRELATION_Q2 = relation
+        plt.title("Correlation with " + str(N) + " lags")
+        plt.ylabel("correlation")
     plt.show()
-    CORRELATION_Q2 = corr_x
 
 
 def local_maximums_flow(Q1):
@@ -272,7 +273,7 @@ if __name__ == '__main__':
                      neighbours_map)  # TODO (1) Check graphs -too crowded for required N=14-
 
         # Part i:-
-        autocorrelation_flow()  # TODO (1) Answer questions.
+        relation_flow(Q1=True)  # TODO (1) Answer questions.
         print("\tAutocorrelation for N={}, K={}  is: {}".format(N, K, AUTOCORRELATION_Q1))
 
         # Part ii:-
@@ -298,7 +299,7 @@ if __name__ == '__main__':
     fitness_map = get_local_fitness_lst(N, K, bin_lst)
 
     # Part i:-
-    correlation_flow()
+    relation_flow(Q1=False)
     print("\tCorrelation for N={}, K={}  is: {}".format(N, K, CORRELATION_Q2))
 
     # Part ii:-
