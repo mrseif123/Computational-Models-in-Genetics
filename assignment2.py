@@ -12,8 +12,9 @@ from statsmodels.graphics import tsaplots
 MARKERS_SHAPES = [".", "v", "+", "*", "^", "8", "s", "p", "h",
                   "X", "d", "D", "<", ">", "1", "2", "3", "4"]
 
-NUM_OF_MAXIMAS_Q1 = []
-NUM_OF_MAXIMAS_Q2 = -1
+NUM_OF_MAXIMUMS_Q1 = []
+NUM_OF_MAXIMUMS_Q2 = -1
+MAX_PATH = -1
 
 AUTOCORRELATION_Q1 = -1
 CORRELATION_Q2 = -1
@@ -29,16 +30,16 @@ def process_number(n_as_lst):
     return s
 
 
-def generateAllBinaryStrings(num, arr, i, bin_lst):
+def generateAllBinaryStrings(num, arr, i, bin_list):
     if i == num:
-        bin_lst.append(process_number(arr[0:num]))
-        return bin_lst
+        bin_list.append(process_number(arr[0:num]))
+        return bin_list
 
     arr[i] = 0
-    generateAllBinaryStrings(num, arr, i + 1, bin_lst)
+    generateAllBinaryStrings(num, arr, i + 1, bin_list)
 
     arr[i] = 1
-    generateAllBinaryStrings(num, arr, i + 1, bin_lst)
+    generateAllBinaryStrings(num, arr, i + 1, bin_list)
 
 
 def isPowerOfTwo(x):
@@ -62,51 +63,51 @@ def get_decimal_representation(lst):
     return decimal_list
 
 
-def get_neighbours_map(bin_lst):
-    neighbours_map = {}
-    normal_list = get_decimal_representation(bin_lst)
-    for binary in bin_lst:
-        neighbours_map[binary] = []
+def get_neighbours_map(bin_list):
+    neighbours_m = {}
+    normal_list = get_decimal_representation(bin_list)
+    for binary in bin_list:
+        neighbours_m[binary] = []
 
     for a in normal_list:
         for b in normal_list:
             if a != b and differAtOneBitPos(a, b):
-                tmp_lst = neighbours_map[bin_lst[a]]
-                tmp_lst.append(bin_lst[b])
-                neighbours_map[bin_lst[a]] = tmp_lst
+                tmp_lst = neighbours_m[bin_list[a]]
+                tmp_lst.append(bin_list[b])
+                neighbours_m[bin_list[a]] = tmp_lst
 
-    return neighbours_map
+    return neighbours_m
 
 
-def generate_fitness_uniform(K):
-    tmp = [None] * (K + 1)
+def generate_fitness_uniform(k):
+    tmp = [None] * (k + 1)
     binary_of_length_k = []
     fitness = {}
-    generateAllBinaryStrings(K + 1, tmp, 0, binary_of_length_k)
+    generateAllBinaryStrings(k + 1, tmp, 0, binary_of_length_k)
     for i in binary_of_length_k:
         fitness[i] = random.uniform(0, 1)
     return fitness, binary_of_length_k
 
 
-def sum_fitness_value(fi, K, N, fi_s):
+def sum_fitness_value(fi, k, n, fi_s):
     val = 0
     tmp_fi = fi + fi + fi
-    for i in range(N):
-        index = (i + K + 1)
+    for i in range(n):
+        index = (i + k + 1)
         val = val + fi_s[tmp_fi[i: index]]
     return val
 
 
-def get_local_fitness_lst(N, K, bin_lst):
-    fi_s, bi_s = generate_fitness_uniform(K)
-    fitness_map = {}
-    for b in bin_lst:
-        fitness_map[b] = 0
+def get_local_fitness_lst(n, k, bin_list):
+    fi_s, bi_s = generate_fitness_uniform(k)
+    f_m = {}
+    for b in bin_list:
+        f_m[b] = 0
 
-    for fi in fitness_map.keys():
-        fitness_map[fi] = float(sum_fitness_value(fi, K, N, fi_s) / N)
+    for fi in f_m.keys():
+        f_m[fi] = float(sum_fitness_value(fi, k, n, fi_s) / n)
 
-    return fitness_map
+    return f_m
 
 
 def create_shapes_map(n_m):
@@ -116,28 +117,31 @@ def create_shapes_map(n_m):
     return shapes_map
 
 
-def plot_fitness(fitness_map, N, neighbours_mapx):
+def plot_fitness(f_m, n, n_m):
     shapes_map = create_shapes_map(neighbours_map)
-    keys = fitness_map.keys()
-    vals = [fitness_map[i] for i in keys]
+    keys = f_m.keys()
+    vals = [f_m[i] for i in keys]
 
     key_lst = list(keys)
     for i in range(len(key_lst)):
         plt.scatter(key_lst[i], vals[i])
-    for k in neighbours_mapx.keys():
-        my_vals = [fitness_map[v] for v in neighbours_mapx[k]]
-        plt.plot(neighbours_mapx[k], my_vals, marker=shapes_map[key_lst[i]])
+    i = 0
+    for k in n_m.keys():
+        my_vals = [f_m[v] for v in n_m[k]]
+        plt.plot(n_m[k], my_vals, marker=shapes_map[key_lst[i]])
+        i += 1
+
     plt.xlabel("")
     plt.ylabel("fitness")
-    plt.title("Fitness landscape\n with N=" + str(N) + ", K=" + str(K))
+    plt.title("Fitness landscape\n with N=" + str(n) + ", K=" + str(K))
     plt.xticks([])
     plt.show()
 
 
-def get_trajectory_of_length(n, n_m, strt_point):
+def get_trajectory_of_length(n, n_m, s_p):
     ln = pow(2, n)
-    vec = [strt_point]
-    curr = strt_point
+    vec = [s_p]
+    curr = s_p
     for i in range(ln - 1):
         random_neighbours = n_m[curr]
         chosen = random.choice(random_neighbours)
@@ -173,17 +177,16 @@ def get_local_maximums_number(n_m, f_m):
     return counter
 
 
-def plot_non_decrasing_trajectories(b_lst, n_m, f_m, k, n):
-    t_l = get_trajectory_lengths(b_lst, f_m, n_m)
+def plot_non_decreasing_trajectories(b_lst, n_m, f_m, k, n):
+    t_l, max_path = get_trajectory_lengths(b_lst, f_m, n_m)
     fig = plt.figure(figsize=(10, 5))
-    # plt.hist(x=t_l.values(), bins=len(t_l.values()))
     val_as_list = list(t_l.values())
     plt.hist(x=t_l.values(), bins=np.arange(min(val_as_list) + 0.25, max(val_as_list) + 1) + 0.2,
              rwidth=0.6, )
 
     plt.xlabel("path length")
     plt.ylabel("count")
-    plt.xticks(range(1, n))
+    plt.xticks(range(1, max_path + 1))
     plt.title(
         "Distrubution of longest non-decreasing\n fitness trajectories with N={} & K={}"
         " & number of paths={}".format(N, K, len(t_l.keys())))
@@ -191,29 +194,32 @@ def plot_non_decrasing_trajectories(b_lst, n_m, f_m, k, n):
 
 
 def get_trajectory_lengths(b_lst, f_m, n_m):
-    trajectory_lenght_map = {}
-    absloute_max = max([val for val in f_m.values()])
-    neighbours_visited = 0
+    global MAX_PATH
+
+    trajectory_length_map = {}
+    absolute_max = max([val for val in f_m.values()])
+    current_max_val = -1
     for point in b_lst:
-        trajectory_lenght_map[point] = 0
+        trajectory_length_map[point] = 0
         current_max = point
         current_max_val = f_m[current_max]
         while True:
-            neighbours_fitnesses = [f_m[current_max]]
             for neighbour in n_m[current_max]:
                 if f_m[neighbour] > current_max_val:
-                    neighbours_visited = 0
                     current_max_val = f_m[neighbour]
                     current_max = neighbour
-                    trajectory_lenght_map[point] += 1
-            if current_max_val != absloute_max:
-                trajectory_lenght_map[point] += 1
-            if neighbours_visited >= N:
+                    trajectory_length_map[point] += 1
+
+            someone_bigger = False
+            for neighbour in n_m[current_max]:
+                if f_m[neighbour] > current_max_val:
+                    someone_bigger = True
+            if current_max_val != absolute_max:
+                trajectory_length_map[point] += 1
+            if not someone_bigger:
                 break
-            else:
-                break
-            neighbours_visited += 1
-    return trajectory_lenght_map
+    MAX_PATH = max(trajectory_length_map.values())
+    return trajectory_length_map, MAX_PATH
 
 
 def autocorrelation_flow():
@@ -243,24 +249,26 @@ def correlation_flow():
 
 
 def local_maximums_flow(Q1):
-    global NUM_OF_MAXIMAS_Q1, NUM_OF_MAXIMAS_Q2
+    global NUM_OF_MAXIMUMS_Q1, NUM_OF_MAXIMUMS_Q2
 
     if Q1:
-        NUM_OF_MAXIMAS_Q1.append(get_local_maximums_number(neighbours_map, fitness_map))
+        NUM_OF_MAXIMUMS_Q1.append(get_local_maximums_number(neighbours_map, fitness_map))
     else:
-        NUM_OF_MAXIMAS_Q2 = get_local_maximums_number(neighbours_map, fitness_map)
+        NUM_OF_MAXIMUMS_Q2 = get_local_maximums_number(neighbours_map, fitness_map)
 
 
 def longest_trajectories_flow():
-    plot_non_decrasing_trajectories(bin_lst, neighbours_map, fitness_map, K, N)
+    plot_non_decreasing_trajectories(bin_lst, neighbours_map, fitness_map, K, N)
 
 
 if __name__ == '__main__':
     # Question 1:
-    print("-Question 1 answers:-")
+    print("######################################################################")
+    print("Question 1 answers:-")
     for N, K in [(7, 0), (7, 4), (7, 10)]:
         # Setting up environment:-
-        print("Starting for N={}, K={}".format(N, K))
+        print("###################################")
+        print("\tStarting for N={}, K={}".format(N, K))
 
         helper_list = [None] * N
         bin_lst = []
@@ -272,17 +280,20 @@ if __name__ == '__main__':
 
         # Part i:-
         autocorrelation_flow()  # TODO (1) Answer questions.
-        print("Autocorrelation for N={}, K={}  is: {}".format(N, K, AUTOCORRELATION_Q1))
+        print("\tAutocorrelation for N={}, K={}  is: {}".format(N, K, AUTOCORRELATION_Q1))
 
         # Part ii:-
         local_maximums_flow(Q1=True)
-        print("Number of local maximums for N={}, K={}  is: {}".format(N, K, NUM_OF_MAXIMAS_Q1))
+        print("\tNumber of local maximums for N={}, K={}  is: {}".format(N, K, NUM_OF_MAXIMUMS_Q1))
 
         # Part iii:-
         longest_trajectories_flow()  # TODO (1) fix infinite loop (2) Answer questions.
-        print("###################################\n")
+        print("\tMax path length with N={}, K={} is: {}".format(N, K, MAX_PATH))
+        print("###################################")
+    print("######################################################################")
 
     # Question 2: # TODO (2.i) Compare them to NK landscape.
+    print("\n\n######################################################################")
     print("Question 2 answers:-")
 
     N = 10
@@ -295,16 +306,15 @@ if __name__ == '__main__':
 
     # Part i:-
     correlation_flow()
-    print("Correlation for N={}, K={}  is: {}".format(N, K, CORRELATION_Q2))
+    print("\tCorrelation for N={}, K={}  is: {}".format(N, K, CORRELATION_Q2))
 
     # Part ii:-
     local_maximums_flow(Q1=False)
-    print("Number of local maximums for N={}, K={}  is: {}".format(N, K, NUM_OF_MAXIMAS_Q2))
+    print("\tNumber of local maximums for N={}, K={}  is: {}".format(N, K, NUM_OF_MAXIMUMS_Q2))
 
     # Part iii:-
     longest_trajectories_flow()
+    print("\tMax path length with N={}, K={} is: {}".format(N, K, MAX_PATH))
 
-    # Comparing with NK model:-
-    print("\n\nComparing between models:-")
-    print("Number of local maximums for NK model:::UnCorrelated is {}:::{}".format(NUM_OF_MAXIMAS_Q1,
-                                                                                   NUM_OF_MAXIMAS_Q2))
+    # Comparing with NK model:- // TODO Add comparesion in the writeup.
+    print("######################################################################")
