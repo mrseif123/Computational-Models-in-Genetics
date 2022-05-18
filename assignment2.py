@@ -6,7 +6,6 @@
 import random
 import numpy as np
 from matplotlib import pyplot as plt
-from statsmodels.graphics import tsaplots
 
 MARKERS_SHAPES = [".", "v", "+", "*", "^", "8", "s", "p", "h",
                   "X", "d", "D", "<", ">", "1", "2", "3", "4"]
