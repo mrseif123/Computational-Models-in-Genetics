@@ -12,6 +12,15 @@ from statsmodels.graphics import tsaplots
 MARKERS_SHAPES = [".", "v", "+", "*", "^", "8", "s", "p", "h",
                   "X", "d", "D", "<", ">", "1", "2", "3", "4"]
 
+NUM_OF_MAXIMAS_Q1 = -1
+NUM_OF_MAXIMAS_Q2 = -1
+
+AUTOCORRELATION_Q1 = -1
+CORRELATION_Q2 = -1
+
+TRAJECTORIES_DISTRIBUTION_Q1 = -1
+TRAJECTORIES_DISTRIBUTION_Q2 = -1
+
 
 def process_number(n_as_lst):
     s = ""
@@ -123,7 +132,6 @@ def plot_fitness(fitness_map, N, neighbours_mapx):
     plt.title("Fitness landscape\n with N=" + str(N) + ", K=" + str(K))
     plt.xticks([])
     plt.show()
-    pass
 
 
 def get_trajectory_of_length(n, n_m, strt_point):
@@ -147,6 +155,11 @@ def autocorr(x):
     return result[int(len(result) / 2):]
 
 
+def corr(x):
+    result = np.correlate(x, x, mode='full')
+    return result[int(len(result) / 2):]
+
+
 def get_local_maximums_number(n_m, f_m):
     counter = 0
     for k in n_m.keys():
@@ -160,14 +173,23 @@ def get_local_maximums_number(n_m, f_m):
     return counter
 
 
-def plot_non_decrasing_trajectories(b_lst, n_m, f_m, k, n):
+def plot_non_decrasing_trajectories(b_lst, n_m, f_m, k, n, Q1):
     t_l = get_trajectory_lengths(b_lst, f_m, n_m)
     fig = plt.figure(figsize=(10, 5))
-    plt.bar(t_l.keys(), t_l.values())
-    plt.xlabel("starting point")
-    plt.ylabel("path length")
-    plt.title("Distrubution of longest non-decreasing\n fitness trajectories with N={} & K={}".format(N,K))
-    plt.show()
+    # plt.hist(x=t_l.values(), bins=len(t_l.values()))
+    val_as_list = list(t_l.values())
+    plt.hist(x=t_l.values(), bins=np.arange(min(val_as_list), max(val_as_list) + 1))
+    plt.xlabel("path length")
+    plt.ylabel("count")
+    plt.xticks(range(1, n))
+    plt.title(
+        "Distrubution of longest non-decreasing\n fitness trajectories with N={} & K={}"
+        " & number of paths={}".format(N, K, len(t_l.keys())))
+    if Q1:
+        TRAJECTORIES_DISTRIBUTION_Q1 = plt
+    else:
+        TRAJECTORIES_DISTRIBUTION_Q2 = plt
+    # plt.show()
 
 
 def get_trajectory_lengths(b_lst, f_m, n_m):
@@ -192,7 +214,7 @@ def get_trajectory_lengths(b_lst, f_m, n_m):
                 break
             else:
                 break
-            neighbours_visited+=1
+            neighbours_visited += 1
     return trajectory_lenght_map
 
 
@@ -205,16 +227,30 @@ def autocorrelation_flow():
     plt.title("Autocorrelation with " + str(N) + " lags")
     plt.ylabel("autocorrelation")
     plt.show()
-    print(auto_corr)
+    AUTOCORRELATION_Q1 = auto_corr
 
 
-def local_maximums_flow():
-    num_of_local_maximums = get_local_maximums_number(neighbours_map, fitness_map)
-    print(num_of_local_maximums)
+def correlation_flow():
+    start_point = random.choice(bin_lst)
+    trajectory = get_trajectory_of_length(N, neighbours_map, start_point)
+    trajectory_as_fitness = np.array(calc_fitness(trajectory, fitness_map))
+    corr_x = corr(trajectory_as_fitness)
+    fig = tsaplots.plot_acf(corr_x, lags=N)
+    plt.title("Correlation with " + str(N) + " lags")
+    plt.ylabel("correlation")
+    plt.show()
+    CORRELATION_Q2 = corr_x
 
 
-def longest_trajectories_flow():
-    plot_non_decrasing_trajectories(bin_lst, neighbours_map, fitness_map, K, N)
+def local_maximums_flow(Q1):
+    if Q1:
+        NUM_OF_MAXIMAS_Q1 = get_local_maximums_number(neighbours_map, fitness_map)
+    else:
+        NUM_OF_MAXIMAS_Q2 = get_local_maximums_number(neighbours_map, fitness_map)
+
+
+def longest_trajectories_flow(Q1):
+    plot_non_decrasing_trajectories(bin_lst, neighbours_map, fitness_map, K, N, Q1)
 
 
 if __name__ == '__main__':
@@ -230,16 +266,33 @@ if __name__ == '__main__':
         generateAllBinaryStrings(N, helper_list, 0, bin_lst)
         neighbours_map = get_neighbours_map(bin_lst)
         fitness_map = get_local_fitness_lst(N, K, bin_lst)
-        plot_fitness(fitness_map, N, neighbours_map) # TODO (1) Check graphs -too crowded for required N=14-
+        plot_fitness(fitness_map, N,
+                     neighbours_map)  # TODO (1) Check graphs -too crowded for required N=14-
 
         # Part i:-
-        autocorrelation_flow() # TODO (1) Answer questions.
+        autocorrelation_flow()  # TODO (1) Answer questions.
 
         # Part ii:-
-        local_maximums_flow()
+        local_maximums_flow(Q1=True)
 
         # Part iii:-
-        longest_trajectories_flow() # TODO (1) fix infinite loop (2) Answer questions.
+        longest_trajectories_flow(Q1=True)  # TODO (1) fix infinite loop (2) Answer questions.
         break
 
-    # Question 2:
+    # Question 2: # TODO (2.i) Compare them to NK landscape.
+    N = 10
+    K = 0
+    helper_list = [None] * N
+    bin_lst = []
+    generateAllBinaryStrings(N, helper_list, 0, bin_lst)
+    neighbours_map = get_neighbours_map(bin_lst)
+    fitness_map = get_local_fitness_lst(N, K, bin_lst)
+
+    # Part i:-
+    correlation_flow()
+
+    # Part ii:-
+    local_maximums_flow(Q1=False)
+
+    # Part iii:-
+    longest_trajectories_flow(Q1=False)
