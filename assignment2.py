@@ -259,32 +259,34 @@ if __name__ == '__main__':
     # Question 1:
     print("######################################################################")
     print("Question 1 answers:-")
-    for N, K in [(7, 0), (7, 4), (7, 10)]:
-        # Setting up environment:-
-        print("###################################")
-        print("\tStarting for N={}, K={}".format(N, K))
 
-        helper_list = [None] * N
-        bin_lst = []
-        generateAllBinaryStrings(N, helper_list, 0, bin_lst)
-        neighbours_map = get_neighbours_map(bin_lst)
-        fitness_map = get_local_fitness_lst(N, K, bin_lst)
-        plot_fitness(fitness_map, N,
-                     neighbours_map)  # TODO (1) Check graphs -too crowded for required N=14-
-
-        # Part i:-
-        relation_flow(Q1=True)  # TODO (1) Answer questions.
-        print("\tAutocorrelation for N={}, K={}  is: {}".format(N, K, AUTOCORRELATION_Q1))
-
-        # Part ii:-
-        local_maximums_flow(Q1=True)
-        print("\tNumber of local maximums for N={}, K={}  is: {}".format(N, K, NUM_OF_MAXIMUMS_Q1))
-
-        # Part iii:-
-        longest_trajectories_flow()  # TODO (1) fix infinite loop (2) Answer questions.
-        print("\tMax path length with N={}, K={} is: {}".format(N, K, MAX_PATH))
-        print("###################################")
-    print("######################################################################")
+    # i = 0
+    # for N, K in [(14, 0), (14, 4), (14, 10)]:
+    #     # Setting up environment:-
+    #     print("###################################")
+    #     print("\tStarting for N={}, K={}".format(N, K))
+    #
+    #     helper_list = [None] * N
+    #     bin_lst = []
+    #     generateAllBinaryStrings(N, helper_list, 0, bin_lst)
+    #     neighbours_map = get_neighbours_map(bin_lst)
+    #     fitness_map = get_local_fitness_lst(N, K, bin_lst)
+    #     # plot_fitness(fitness_map, N, neighbours_map)  # TODO (1) Check graphs -too crowded for required N=14-
+    #
+    #     # Part i:-
+    #     relation_flow(Q1=True)  # TODO (1) Answer questions.
+    #     print("\tAutocorrelation for N={}, K={}  is: {}".format(N, K, AUTOCORRELATION_Q1))
+    #
+    #     # Part ii:-
+    #     local_maximums_flow(Q1=True)
+    #     print("\tNumber of local maximums for N={}, K={}  is: {}".format(N, K, NUM_OF_MAXIMUMS_Q1[i]))
+    #
+    #     # Part iii:-
+    #     longest_trajectories_flow()  # TODO (1) fix infinite loop (2) Answer questions.
+    #     print("\tMax path length with N={}, K={} is: {}".format(N, K, MAX_PATH))
+    #     i += 1
+    #     print("###################################")
+    # print("######################################################################")
 
     # Question 2: # TODO (2.i) Compare them to NK landscape.
     print("\n\n######################################################################")
