@@ -4,7 +4,6 @@
 
 # Question 1, NK Models:-
 import random
-
 import numpy as np
 from matplotlib import pyplot as plt
 from statsmodels.graphics import tsaplots
@@ -14,6 +13,7 @@ MARKERS_SHAPES = [".", "v", "+", "*", "^", "8", "s", "p", "h",
 
 NUM_OF_MAXIMUMS_Q1 = []
 NUM_OF_MAXIMUMS_Q2 = -1
+
 MAX_PATH = -1
 
 AUTOCORRELATION_Q1 = -1
@@ -43,13 +43,11 @@ def generateAllBinaryStrings(num, arr, i, bin_list):
 
 
 def isPowerOfTwo(x):
-    # First x in the below expression is
-    # for the case when x is 0
+    # First x in the below expression is for the case when x is 0
     return x and (not (x & (x - 1)))
 
 
-# function to check whether the two numbers
-# differ at one bit position only
+# function to check whether the two numbers differ at one bit position only
 def differAtOneBitPos(a, b):
     return isPowerOfTwo(a ^ b)
 
@@ -179,7 +177,6 @@ def get_local_maximums_number(n_m, f_m):
 
 def plot_non_decreasing_trajectories(b_lst, n_m, f_m, k, n):
     t_l, max_path = get_trajectory_lengths(b_lst, f_m, n_m)
-    fig = plt.figure(figsize=(10, 5))
     val_as_list = list(t_l.values())
     plt.hist(x=t_l.values(), bins=np.arange(min(val_as_list) + 0.25, max(val_as_list) + 1) + 0.2,
              rwidth=0.6, )
@@ -188,8 +185,8 @@ def plot_non_decreasing_trajectories(b_lst, n_m, f_m, k, n):
     plt.ylabel("count")
     plt.xticks(range(1, max_path + 1))
     plt.title(
-        "Distrubution of longest non-decreasing\n fitness trajectories with N={} & K={}"
-        " & number of paths={}".format(N, K, len(t_l.keys())))
+        "Distribution of longest non-decreasing\n fitness trajectories with N={} & K={}"
+        " & number of paths={}".format(n, k, len(t_l.keys())))
     plt.show()
 
 
@@ -198,7 +195,6 @@ def get_trajectory_lengths(b_lst, f_m, n_m):
 
     trajectory_length_map = {}
     absolute_max = max([val for val in f_m.values()])
-    current_max_val = -1
     for point in b_lst:
         trajectory_length_map[point] = 0
         current_max = point
@@ -228,7 +224,6 @@ def autocorrelation_flow():
     trajectory = get_trajectory_of_length(N, neighbours_map, start_point)
     trajectory_as_fitness = np.array(calc_fitness(trajectory, fitness_map))
     auto_corr = autocorr(trajectory_as_fitness)
-    fig = tsaplots.plot_acf(auto_corr, lags=N)
     plt.title("Autocorrelation with " + str(N) + " lags")
     plt.ylabel("autocorrelation")
     plt.show()
@@ -241,7 +236,6 @@ def correlation_flow():
     trajectory = get_trajectory_of_length(N, neighbours_map, start_point)
     trajectory_as_fitness = np.array(calc_fitness(trajectory, fitness_map))
     corr_x = corr(trajectory_as_fitness)
-    fig = tsaplots.plot_acf(corr_x, lags=N)
     plt.title("Correlation with " + str(N) + " lags")
     plt.ylabel("correlation")
     plt.show()
