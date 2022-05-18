@@ -12,7 +12,7 @@ from statsmodels.graphics import tsaplots
 MARKERS_SHAPES = [".", "v", "+", "*", "^", "8", "s", "p", "h",
                   "X", "d", "D", "<", ">", "1", "2", "3", "4"]
 
-NUM_OF_MAXIMAS_Q1 = -1
+NUM_OF_MAXIMAS_Q1 = []
 NUM_OF_MAXIMAS_Q2 = -1
 
 AUTOCORRELATION_Q1 = -1
@@ -178,7 +178,9 @@ def plot_non_decrasing_trajectories(b_lst, n_m, f_m, k, n):
     fig = plt.figure(figsize=(10, 5))
     # plt.hist(x=t_l.values(), bins=len(t_l.values()))
     val_as_list = list(t_l.values())
-    plt.hist(x=t_l.values(), bins=np.arange(min(val_as_list), max(val_as_list) + 1))
+    plt.hist(x=t_l.values(), bins=np.arange(min(val_as_list) + 0.25, max(val_as_list) + 1) + 0.2,
+             rwidth=0.6, )
+
     plt.xlabel("path length")
     plt.ylabel("count")
     plt.xticks(range(1, n))
@@ -215,6 +217,7 @@ def get_trajectory_lengths(b_lst, f_m, n_m):
 
 
 def autocorrelation_flow():
+    global AUTOCORRELATION_Q1
     start_point = random.choice(bin_lst)
     trajectory = get_trajectory_of_length(N, neighbours_map, start_point)
     trajectory_as_fitness = np.array(calc_fitness(trajectory, fitness_map))
@@ -227,6 +230,7 @@ def autocorrelation_flow():
 
 
 def correlation_flow():
+    global CORRELATION_Q2
     start_point = random.choice(bin_lst)
     trajectory = get_trajectory_of_length(N, neighbours_map, start_point)
     trajectory_as_fitness = np.array(calc_fitness(trajectory, fitness_map))
@@ -239,8 +243,10 @@ def correlation_flow():
 
 
 def local_maximums_flow(Q1):
+    global NUM_OF_MAXIMAS_Q1, NUM_OF_MAXIMAS_Q2
+
     if Q1:
-        NUM_OF_MAXIMAS_Q1 = get_local_maximums_number(neighbours_map, fitness_map)
+        NUM_OF_MAXIMAS_Q1.append(get_local_maximums_number(neighbours_map, fitness_map))
     else:
         NUM_OF_MAXIMAS_Q2 = get_local_maximums_number(neighbours_map, fitness_map)
 
@@ -251,12 +257,11 @@ def longest_trajectories_flow():
 
 if __name__ == '__main__':
     # Question 1:
-    for n, k in [(14, 0), (14, 4), (14, 10)]:
+    print("-Question 1 answers:-")
+    for N, K in [(7, 0), (7, 4), (7, 10)]:
         # Setting up environment:-
-        N = n
-        K = k
-        N = 3
-        K = 2
+        print("Starting for N={}, K={}".format(N, K))
+
         helper_list = [None] * N
         bin_lst = []
         generateAllBinaryStrings(N, helper_list, 0, bin_lst)
@@ -267,19 +272,19 @@ if __name__ == '__main__':
 
         # Part i:-
         autocorrelation_flow()  # TODO (1) Answer questions.
-        print(AUTOCORRELATION_Q1)
+        print("Autocorrelation for N={}, K={}  is: {}".format(N, K, AUTOCORRELATION_Q1))
 
         # Part ii:-
         local_maximums_flow(Q1=True)
-        print(NUM_OF_MAXIMAS_Q1)
+        print("Number of local maximums for N={}, K={}  is: {}".format(N, K, NUM_OF_MAXIMAS_Q1))
 
         # Part iii:-
-        longest_trajectories_flow(Q1=True)  # TODO (1) fix infinite loop (2) Answer questions.
-        TRAJECTORIES_DISTRIBUTION_Q1.show()
-
-        break
+        longest_trajectories_flow()  # TODO (1) fix infinite loop (2) Answer questions.
+        print("###################################\n")
 
     # Question 2: # TODO (2.i) Compare them to NK landscape.
+    print("Question 2 answers:-")
+
     N = 10
     K = 0
     helper_list = [None] * N
@@ -290,12 +295,16 @@ if __name__ == '__main__':
 
     # Part i:-
     correlation_flow()
-    print(CORRELATION_Q2)
+    print("Correlation for N={}, K={}  is: {}".format(N, K, CORRELATION_Q2))
 
     # Part ii:-
     local_maximums_flow(Q1=False)
-    print(NUM_OF_MAXIMAS_Q2)
+    print("Number of local maximums for N={}, K={}  is: {}".format(N, K, NUM_OF_MAXIMAS_Q2))
 
     # Part iii:-
-    longest_trajectories_flow(Q1=False)
-    TRAJECTORIES_DISTRIBUTION_Q2.show()
+    longest_trajectories_flow()
+
+    # Comparing with NK model:-
+    print("\n\nComparing between models:-")
+    print("Number of local maximums for NK model:::UnCorrelated is {}:::{}".format(NUM_OF_MAXIMAS_Q1,
+                                                                                   NUM_OF_MAXIMAS_Q2))
