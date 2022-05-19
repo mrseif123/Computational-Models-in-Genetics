@@ -4,9 +4,9 @@
 
 # Question 1, NK Models:-
 import random
+
 import numpy as np
 from matplotlib import pyplot as plt
-from statsmodels.graphics import tsaplots
 
 MARKERS_SHAPES = [".", "v", "+", "*", "^", "8", "s", "p", "h",
                   "X", "d", "D", "<", ">", "1", "2", "3", "4"]
@@ -16,7 +16,7 @@ NUM_OF_MAXIMUMS_Q2 = -1
 
 MAX_PATH = -1
 
-AUTOCORRELATION_Q1 = -1
+AUTOCORRELATION_Q1 = []
 CORRELATION_Q2 = -1
 
 TRAJECTORIES_DISTRIBUTION_Q1 = -1
@@ -116,34 +116,6 @@ def get_local_fitness_lst_total_random(n, bin_list):
     return f_m
 
 
-def create_shapes_map(n_m):
-    shapes_map = {}
-    for k in n_m.keys():
-        shapes_map[k] = MARKERS_SHAPES[k.count('1')]
-    return shapes_map
-
-
-def plot_fitness(f_m, n, n_m):
-    shapes_map = create_shapes_map(neighbours_map)
-    keys = f_m.keys()
-    vals = [f_m[i] for i in keys]
-
-    key_lst = list(keys)
-    for i in range(len(key_lst)):
-        plt.scatter(key_lst[i], vals[i])
-    i = 0
-    for k in n_m.keys():
-        my_vals = [f_m[v] for v in n_m[k]]
-        plt.plot(n_m[k], my_vals, marker=shapes_map[key_lst[i]])
-        i += 1
-
-    plt.xlabel("")
-    plt.ylabel("fitness")
-    plt.title("Fitness landscape\n with N=" + str(n) + ", K=" + str(K))
-    plt.xticks([])
-    plt.show()
-
-
 def get_trajectory_of_length(n, n_m, s_p):
     ln = pow(2, n)
     vec = [s_p]
@@ -238,16 +210,15 @@ def relation_flow(Q1):
     else:
         relation = corr(trajectory_as_fitness)
 
-    tsaplots.plot_acf(relation, lags=N)
+    # tsaplots.plot_acf(relation, lags=N)
     if Q1:
-        AUTOCORRELATION_Q1 = relation
-        plt.title("Autocorrelation with " + str(N) + " lags")
-        plt.ylabel("autocorrelation")
+        AUTOCORRELATION_Q1.append(relation)
+        # plt.title("Autocorrelation with " + str(N) + " lags")
+        # plt.ylabel("autocorrelation")
     else:
         CORRELATION_Q2 = relation
-        plt.title("Correlation with " + str(N) + " lags")
-        plt.ylabel("correlation")
-    plt.show()
+        # plt.title("Correlation with " + str(N) + " lags")
+        # plt.ylabel("correlation")
 
 
 def local_maximums_flow(Q1):
@@ -265,13 +236,11 @@ def longest_trajectories_flow():
 
 if __name__ == '__main__':
     # Question 1:
-    print("######################################################################")
     print("Question 1 answers:-")
 
-    I = 0
-    for N, K in [(7, 0), (7, 4), (7, 10)]:
+    m = 0
+    for N, K in [(5, 0), (5, 4), (5, 3)]:
         # Setting up environment:-
-        print("###################################")
         print("\tStarting for N={}, K={}".format(N, K))
 
         helper_list = [None] * N
@@ -279,47 +248,44 @@ if __name__ == '__main__':
         generateAllBinaryStrings(N, helper_list, 0, bin_lst)
         neighbours_map = get_neighbours_map(bin_lst)
         fitness_map = get_local_fitness_lst(N, K, bin_lst)
-        plot_fitness(fitness_map, N,
-                     neighbours_map)  # TODO (1) Check graphs -too crowded for required N=14-
 
         # Part i:-
         relation_flow(Q1=True)  # TODO (1) Answer questions.
-        print("\tAutocorrelation for N={}, K={}  is: {}".format(N, K, AUTOCORRELATION_Q1))
+        print("\tAutocorrelation for N={}, K={}  is: {}".format(N, K, AUTOCORRELATION_Q1[m]))
 
         # Part ii:-
         local_maximums_flow(Q1=True)
-        print("\tNumber of local maximums for N={}, K={}  is: {}".format(N, K, NUM_OF_MAXIMUMS_Q1[I]))
+        print("\tNumber of local maximums for N={}, K={}  is: {}".format(N, K, NUM_OF_MAXIMUMS_Q1[m]))
 
         # Part iii:-
         longest_trajectories_flow()  # TODO (1) fix infinite loop (2) Answer questions.
         print("\tMax path length with N={}, K={} is: {}".format(N, K, MAX_PATH))
-        I += 1
-        print("###################################")
-    print("######################################################################")
+        m += 1
+
+    print("######################################################################\n"
+          "\n######################################################################")
 
     # Question 2: # TODO (2.i) Compare them to NK landscape.
-    print("\n\n######################################################################")
-    print("Question 2 answers:-")
+    print("Question 2 answers:-\n (this is a private-case for NK model where K=N-1)")
 
     N = 10
+    K = N - 1
     helper_list = [None] * N
     bin_lst = []
     generateAllBinaryStrings(N, helper_list, 0, bin_lst)
     neighbours_map = get_neighbours_map(bin_lst)
-    fitness_map = get_local_fitness_lst_total_random(N, bin_lst)
-    plot_fitness(fitness_map, N, neighbours_map)
+    fitness_map = get_local_fitness_lst(N, K, bin_lst)
 
     # Part i:-
     relation_flow(Q1=False)
-    print("\tCorrelation for N={} is: {}".format(N, CORRELATION_Q2))
+    print("\tCorrelation for N={}, K={} is: {}".format(N, K, CORRELATION_Q2))
 
     # Part ii:-
     local_maximums_flow(Q1=False)
-    print("\tNumber of local maximums for N={} is: {}".format(N, NUM_OF_MAXIMUMS_Q2))
+    print("\tNumber of local maximums for N={}, K={} is: {}".format(N, K, NUM_OF_MAXIMUMS_Q2))
 
     # Part iii:-
     longest_trajectories_flow()
-    print("\tMax path length with N={} is: {}".format(N, MAX_PATH))
+    print("\tMax path length with N={}, K={} is: {}".format(N, K, MAX_PATH))
 
     # Comparing with NK model:- // TODO Add comparesion in the writeup.
-    print("######################################################################")
