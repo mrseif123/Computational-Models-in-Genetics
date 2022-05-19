@@ -213,12 +213,15 @@ def relation_flow(Q1):
     # tsaplots.plot_acf(relation, lags=N)
     if Q1:
         AUTOCORRELATION_Q1.append(relation)
-        # plt.title("Autocorrelation with " + str(N) + " lags")
-        # plt.ylabel("autocorrelation")
+        plt.title("Autocorrelation with " + str(N) + " lags")
+        plt.ylabel("autocorrelation")
+
     else:
         CORRELATION_Q2 = relation
-        # plt.title("Correlation with " + str(N) + " lags")
-        # plt.ylabel("correlation")
+        plt.title("Correlation with " + str(N) + " lags")
+        plt.ylabel("correlation")
+    plt.plot(relation, trajectory_as_fitness)
+    plt.show()
 
 
 def local_maximums_flow(Q1):
@@ -239,7 +242,7 @@ if __name__ == '__main__':
     print("Question 1 answers:-")
 
     m = 0
-    for N, K in [(5, 0), (5, 4), (5, 3)]:
+    for N, K in [(6, 0), (6, 4), (6, 5)]:
         # Setting up environment:-
         print("\tStarting for N={}, K={}".format(N, K))
 
@@ -251,7 +254,7 @@ if __name__ == '__main__':
 
         # Part i:-
         relation_flow(Q1=True)  # TODO (1) Answer questions.
-        print("\tAutocorrelation for N={}, K={}  is: {}".format(N, K, AUTOCORRELATION_Q1[m]))
+        print("\tAutocorrelation for N={}, K={}  is: {}".format(N, K, AUTOCORRELATION_Q1[m])) # TODO FIX
 
         # Part ii:-
         local_maximums_flow(Q1=True)
@@ -278,7 +281,7 @@ if __name__ == '__main__':
 
     # Part i:-
     relation_flow(Q1=False)
-    print("\tCorrelation for N={}, K={} is: {}".format(N, K, CORRELATION_Q2))
+    print("\tCorrelation for N={}, K={} is: {}".format(N, K, CORRELATION_Q2)) # TODO FIX
 
     # Part ii:-
     local_maximums_flow(Q1=False)
