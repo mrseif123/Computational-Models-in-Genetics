@@ -131,11 +131,33 @@ def calc_fitness(lst, f_map):
     vec = [f_map[x] for x in lst]
     return vec
 
-
+# Choose the 3rd autocorrelation equation (normalized to 1 at zero):-
 def autocorr(x):
-    result = np.correlate(x, x, mode='full')
-    return result[int(len(result) / 2):]
+    data = x
+    lags = range(11)
+    acorr = len(lags) * [0]
 
+    # Mean
+    mean = sum(data) / len(data)
+
+    # Variance
+    var = sum([(x - mean) ** 2 for x in data]) / len(data)
+
+    # Normalized data
+    ndata = [x - mean for x in data]
+
+    # Go through lag components one-by-one
+    for l in lags:
+        c = 1  # Self correlation
+
+        if (l > 0):
+            tmp = [ndata[l:][i] * ndata[:-l][i]
+                   for i in range(len(data) - l)]
+
+            c = sum(tmp) / len(data) / var
+
+        acorr[l] = c
+    return acorr
 
 def corr(x):
     result = np.correlate(x, x, mode='full')
@@ -198,7 +220,7 @@ def get_trajectory_lengths(b_lst, f_m, n_m):
     return trajectory_length_map, MAX_PATH
 
 
-def relation_flow(Q1):
+def relation_flow(n, k, Q1):
     global AUTOCORRELATION_Q1, CORRELATION_Q2
     start_point = random.choice(bin_lst)
     trajectory = get_trajectory_of_length(N, neighbours_map, start_point)
@@ -206,22 +228,22 @@ def relation_flow(Q1):
 
     if Q1:
         relation = autocorr(trajectory_as_fitness)
-
     else:
         relation = corr(trajectory_as_fitness)
 
-    # tsaplots.plot_acf(relation, lags=N)
     if Q1:
         AUTOCORRELATION_Q1.append(relation)
-        plt.title("Autocorrelation with " + str(N) + " lags")
+        plt.title("Autocorrelation N={} K={}".format(n,k))
         plt.ylabel("autocorrelation")
-
+        rel = relation[::-1] + relation[1::]
+        plt.plot( range(-len(rel)//2 + 1, len(rel)//2 + 1),rel)
     else:
         CORRELATION_Q2 = relation
-        plt.title("Correlation with " + str(N) + " lags")
+        plt.title("Correlation with N={} K={}".format(n,k))
         plt.ylabel("correlation")
-    plt.plot(relation, trajectory_as_fitness)
+
     plt.show()
+
 
 
 def local_maximums_flow(Q1):
@@ -242,7 +264,7 @@ if __name__ == '__main__':
     print("Question 1 answers:-")
 
     m = 0
-    for N, K in [(6, 0), (6, 4), (6, 5)]:
+    for N, K in [(14, 0), (14, 4), (14, 10)]:
         # Setting up environment:-
         print("\tStarting for N={}, K={}".format(N, K))
 
@@ -253,7 +275,7 @@ if __name__ == '__main__':
         fitness_map = get_local_fitness_lst(N, K, bin_lst)
 
         # Part i:-
-        relation_flow(Q1=True)  # TODO (1) Answer questions.
+        relation_flow(N, K, Q1=True)  # TODO (1) Answer questions.
         print("\tAutocorrelation for N={}, K={}  is: {}".format(N, K, AUTOCORRELATION_Q1[m])) # TODO FIX
 
         # Part ii:-
@@ -280,7 +302,7 @@ if __name__ == '__main__':
     fitness_map = get_local_fitness_lst(N, K, bin_lst)
 
     # Part i:-
-    relation_flow(Q1=False)
+    relation_flow( N, K, Q1=False)
     print("\tCorrelation for N={}, K={} is: {}".format(N, K, CORRELATION_Q2)) # TODO FIX
 
     # Part ii:-
