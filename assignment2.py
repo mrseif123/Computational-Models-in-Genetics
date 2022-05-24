@@ -131,6 +131,7 @@ def calc_fitness(lst, f_map):
     vec = [f_map[x] for x in lst]
     return vec
 
+
 # Choose the 3rd autocorrelation equation (normalized to 1 at zero):-
 def autocorr(x):
     data = x
@@ -158,6 +159,7 @@ def autocorr(x):
 
         acorr[l] = c
     return acorr
+
 
 def corr(x):
     result = np.correlate(x, x, mode='full')
@@ -226,24 +228,29 @@ def relation_flow(n, k, Q1):
     trajectory = get_trajectory_of_length(N, neighbours_map, start_point)
     trajectory_as_fitness = np.array(calc_fitness(trajectory, fitness_map))
 
-    if Q1:
-        relation = autocorr(trajectory_as_fitness)
-    else:
-        relation = corr(trajectory_as_fitness)
+    # if Q1:
+    #     relation = autocorr(trajectory_as_fitness)
+    # else:
+    #     relation = corr(trajectory_as_fitness)
+    relation = autocorr(trajectory_as_fitness)
 
-    if Q1:
-        AUTOCORRELATION_Q1.append(relation)
-        plt.title("Autocorrelation N={} K={}".format(n,k))
-        plt.ylabel("autocorrelation")
-        rel = relation[::-1] + relation[1::]
-        plt.plot( range(-len(rel)//2 + 1, len(rel)//2 + 1),rel)
-    else:
-        CORRELATION_Q2 = relation
-        plt.title("Correlation with N={} K={}".format(n,k))
-        plt.ylabel("correlation")
+    # if Q1:
+    #     AUTOCORRELATION_Q1.append(relation)
+    #     plt.title("Autocorrelation N={} K={}".format(n,k))
+    #     plt.ylabel("autocorrelation")
+    #     rel = relation[::-1] + relation[1::]
+    #     plt.plot( range(-len(rel)//2 + 1, len(rel)//2 + 1),rel)
+    AUTOCORRELATION_Q1.append(relation)
+    plt.title("Autocorrelation N={} K={}".format(n, k))
+    plt.ylabel("autocorrelation")
+    rel = relation[::-1] + relation[1::]
+    plt.plot(range(-len(rel) // 2 + 1, len(rel) // 2 + 1), rel)
+    # else:
+    #     CORRELATION_Q2 = relation
+    #     plt.title("Correlation with N={} K={}".format(n,k))
+    #     plt.ylabel("correlation")
 
     plt.show()
-
 
 
 def local_maximums_flow(Q1):
@@ -276,7 +283,7 @@ if __name__ == '__main__':
 
         # Part i:-
         relation_flow(N, K, Q1=True)  # TODO (1) Answer questions.
-        print("\tAutocorrelation for N={}, K={}  is: {}".format(N, K, AUTOCORRELATION_Q1[m])) # TODO FIX
+        print("\tAutocorrelation for N={}, K={}  is: {}".format(N, K, AUTOCORRELATION_Q1[m]))  # TODO FIX
 
         # Part ii:-
         local_maximums_flow(Q1=True)
@@ -284,7 +291,7 @@ if __name__ == '__main__':
 
         # Part iii:-
         longest_trajectories_flow()  # TODO (1) fix infinite loop (2) Answer questions.
-        print("\tMax path length with N={}, K={} is: {}".format(N, K, MAX_PATH))
+        print("\tMax path length with N={}, K={} is: {}\n".format(N, K, MAX_PATH))
         m += 1
 
     print("######################################################################\n"
@@ -302,8 +309,8 @@ if __name__ == '__main__':
     fitness_map = get_local_fitness_lst(N, K, bin_lst)
 
     # Part i:-
-    relation_flow( N, K, Q1=False)
-    print("\tCorrelation for N={}, K={} is: {}".format(N, K, CORRELATION_Q2)) # TODO FIX
+    relation_flow(N, K, Q1=False)
+    print("\tCorrelation for N={}, K={} is: {}".format(N, K, CORRELATION_Q2))  # TODO FIX
 
     # Part ii:-
     local_maximums_flow(Q1=False)
