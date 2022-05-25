@@ -179,6 +179,8 @@ def get_local_maximums_number(n_m, f_m):
 
 
 def plot_non_decreasing_trajectories(b_lst, n_m, f_m, k, n):
+    fig = plt.figure()
+    fig.set_size_inches(20, 10)
     t_l, max_path = get_trajectory_lengths(b_lst, f_m, n_m)
     val_as_list = list(t_l.values())
     plt.hist(x=t_l.values(), bins=np.arange(min(val_as_list) + 0.25, max(val_as_list) + 1) + 0.2,
@@ -223,7 +225,8 @@ def get_trajectory_lengths(b_lst, f_m, n_m):
 
 def relation_flow(n, k):
     global AUTOCORRELATION
-
+    fig = plt.figure()
+    fig.set_size_inches(20, 10)
     start_point = random.choice(bin_lst)
     trajectory = get_trajectory_of_length(N, neighbours_map, start_point)
     trajectory_as_fitness = np.array(calc_fitness(trajectory, fitness_map))
@@ -268,7 +271,7 @@ if __name__ == '__main__':
 
         # Part i:-
         relation_flow(N, K)  # TODO (1) Answer questions.
-        print("\tAutocorrelation for N={}, K={}  is: {}".format(N, K, AUTOCORRELATION[m]))  # TODO FIX
+        # print("\tAutocorrelation for N={}, K={}  is: {}".format(N, K, AUTOCORRELATION[m]))  # TODO FIX
 
         # Part ii:-
         local_maximums_flow(Q1=True)
@@ -295,7 +298,7 @@ if __name__ == '__main__':
 
     # Part i:-
     relation_flow(N, K)
-    print("\tCorrelation for N={}, K={} is: {}".format(N, K, AUTOCORRELATION[-1]))  # TODO FIX
+    # print("\tCorrelation for N={}, K={} is: {}".format(N, K, AUTOCORRELATION[-1]))  # TODO FIX
 
     # Part ii:-
     local_maximums_flow(Q1=False)
